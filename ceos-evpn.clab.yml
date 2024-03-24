@@ -1,0 +1,112 @@
+name: ceos-evpn
+prefix: __lab-name
+mgmt:
+  network: ceos-mgmt
+  ipv4-subnet: 172.20.20.0/24
+
+topology:
+  kinds:
+    ceos:
+      image: ceos:4.31.2F
+      env:
+        CLAB_MGMT_VRF: MGMT
+    linux:
+      cmd: journalctl -f
+      binds:
+        - configs/aliases.all:/etc/profile.d/00-aliases.sh
+      healthcheck:
+        start-period: 0
+        interval: 30
+        timeout: 30
+        retries: 3
+        test:
+          - CMD-SHELL
+          - test -f "/run/sshd.pid"
+  nodes:
+    leaf1:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.11
+
+    leaf2:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.12
+
+    leaf3:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.13
+
+    leaf4:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.14
+
+    spine1:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.21
+
+    spine2:
+      kind: ceos
+      mgmt-ipv4: 172.20.20.22
+
+    host1: &ubuntu
+      kind: linux
+      image: clabs-host:ubuntu
+      binds:
+        - configs/interfaces.host1:/etc/network/interfaces
+      mgmt-ipv4: 172.20.20.51
+      stages:
+        healthy:
+          exec:
+            on-exit:
+            - ifupdown ifup -a      
+    host2:
+      <<: *ubuntu
+      binds:
+        - configs/interfaces.host2:/etc/network/interfaces
+      mgmt-ipv4: 172.20.20.52
+
+    host3: &debian
+      kind: linux
+      image: clabs-host:debian
+      binds:
+        - configs/interfaces.host3:/etc/network/interfaces
+      mgmt-ipv4: 172.20.20.53
+      stages:
+        healthy:
+          exec:
+            on-exit:
+              - ifreload -a
+    host4:
+      <<: *debian
+      binds:
+        - configs/interfaces.host4:/etc/network/interfaces
+      mgmt-ipv4: 172.20.20.54
+      
+  links:
+    - endpoints: ["leaf1:eth7", "host1:eth1"]
+    - endpoints: ["leaf2:eth7", "host1:eth2"]
+    - endpoints: ["leaf3:eth7", "host2:eth1"]
+    - endpoints: ["leaf4:eth7", "host2:eth2"]
+    - endpoints: ["leaf1:eth8", "host3:eth1"]
+    - endpoints: ["leaf2:eth8", "host3:eth2"]
+    - endpoints: ["leaf3:eth8", "host4:eth1"]
+    - endpoints: ["leaf4:eth8", "host4:eth2"]
+    
+    
+    - endpoints: ["leaf1:eth10", "leaf2:eth10"]
+    - endpoints: ["leaf3:eth10", "leaf4:eth10"]
+
+    - endpoints: ["leaf1:eth11", "spine1:eth1"]
+    - endpoints: ["leaf2:eth11", "spine1:eth2"]
+    - endpoints: ["leaf3:eth11", "spine1:eth3"]
+    - endpoints: ["leaf4:eth11", "spine1:eth4"]
+
+    - endpoints: ["leaf1:eth12", "spine2:eth1"]
+    - endpoints: ["leaf2:eth12", "spine2:eth2"]
+    - endpoints: ["leaf3:eth12", "spine2:eth3"]
+    - endpoints: ["leaf4:eth12", "spine2:eth4"]
+
+
+    
+    
+
+

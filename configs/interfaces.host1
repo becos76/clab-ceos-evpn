@@ -1,0 +1,13 @@
+auto lo
+iface lo inet loopback
+
+auto bond0
+iface bond0 inet static 
+    bond-slaves eth1 eth2
+    bond-mode 4
+    bond-miimon 100
+    bond-downdelay 200
+    bond-updelay 200
+    bond-lacp-rate 0
+    bond-xmit-hash-policy layer3+4
+    address 10.10.10.1/24
