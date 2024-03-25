@@ -1,0 +1,106 @@
+! Startup-config last modified at Sun Mar 24 23:20:36 2024 by root
+! device: spine2 (cEOSLab, EOS-4.31.2F-35442146.4312F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$r4dEarXtQz5IUo4Q$gH0X2WzRhHSgf8L1JMFYY0E8CKwoCZd5T6XwUHPLrMzGmvKhyhCmqOGtpTJzvktBNTnQBnwTjVjCKqQPJvXn.0
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine2
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance MGMT
+!
+management api http-commands
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+management api gnmi
+   transport grpc default
+      vrf MGMT
+!
+management api netconf
+   transport ssh default
+      vrf MGMT
+!
+interface Ethernet1
+   description leaf1
+   mtu 9214
+   no switchport
+   ip address 10.0.2.0/31
+!
+interface Ethernet2
+   description leaf2
+   mtu 9214
+   no switchport
+   ip address 10.0.2.2/31
+!
+interface Ethernet3
+   description leaf3
+   mtu 9214
+   no switchport
+   ip address 10.0.2.4/31
+!
+interface Ethernet4
+   description leaf4
+   mtu 9214
+   no switchport
+   ip address 10.0.2.6/31
+!
+interface Loopback0
+   ip address 10.0.250.2/32
+!
+interface Management0
+   vrf MGMT
+   ip address 172.20.20.22/24
+!
+ip routing
+ip routing vrf MGMT
+!
+ip route vrf MGMT 0.0.0.0/0 172.20.20.1
+!
+router bgp 65000
+   router-id 10.0.250.2
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 64
+   neighbor evpn peer group
+   neighbor evpn next-hop-unchanged
+   neighbor evpn update-source Loopback0
+   neighbor evpn ebgp-multihop 3
+   neighbor evpn send-community extended
+   neighbor evpn maximum-routes 12000 warning-only
+   neighbor 10.0.2.1 remote-as 65001
+   neighbor 10.0.2.3 remote-as 65001
+   neighbor 10.0.2.5 remote-as 65002
+   neighbor 10.0.2.7 remote-as 65002
+   neighbor 10.0.250.11 peer group evpn
+   neighbor 10.0.250.11 remote-as 65001
+   neighbor 10.0.250.12 peer group evpn
+   neighbor 10.0.250.12 remote-as 65001
+   neighbor 10.0.250.13 peer group evpn
+   neighbor 10.0.250.13 remote-as 65002
+   neighbor 10.0.250.14 peer group evpn
+   neighbor 10.0.250.14 remote-as 65002
+   !
+   address-family evpn
+      neighbor evpn activate
+   !
+   address-family ipv4
+      neighbor 10.0.2.1 activate
+      neighbor 10.0.2.3 activate
+      neighbor 10.0.2.5 activate
+      neighbor 10.0.2.7 activate
+      network 10.0.250.2/32
+!
+end

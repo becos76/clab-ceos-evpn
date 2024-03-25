@@ -11,3 +11,4 @@ iface bond0 inet static
     bond-lacp-rate 0
     bond-xmit-hash-policy layer3+4
     address 10.10.10.2/24
+    offload-tx off

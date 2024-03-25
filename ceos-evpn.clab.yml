@@ -26,26 +26,32 @@ topology:
     leaf1:
       kind: ceos
       mgmt-ipv4: 172.20.20.11
+      #startup-config: configs/leaf1.cfg
 
     leaf2:
       kind: ceos
       mgmt-ipv4: 172.20.20.12
+      #startup-config: configs/leaf2.cfg
 
     leaf3:
       kind: ceos
       mgmt-ipv4: 172.20.20.13
+      #startup-config: configs/leaf3.cfg
 
     leaf4:
       kind: ceos
       mgmt-ipv4: 172.20.20.14
+      #startup-config: configs/leaf4.cfg
 
     spine1:
       kind: ceos
       mgmt-ipv4: 172.20.20.21
+      #startup-config: configs/spine1.cfg
 
     spine2:
       kind: ceos
       mgmt-ipv4: 172.20.20.22
+      #startup-config: configs/spine2.cfg
 
     host1: &ubuntu
       kind: linux
